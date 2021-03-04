@@ -1,6 +1,4 @@
 #include<iostream>
-#include"Registers.h"
-#include"Memory.h"
 #include"ProcessorRegisters.h"
 using namespace std;
 
@@ -8,12 +6,9 @@ class Processor
 {
 	private:
 		int clock = 0;
-		int PC = 0;
+		int PC = 8192;
 		bool pipeline = false;
 	public:
-		Registers reg;
-		Memory mem;
-
 		void Process( )
 		{
 			IF_ID_RF iibefore;
@@ -28,41 +23,56 @@ class Processor
 			MEM_WB mwafter;
 			WB_IF wiafter;
 
+			ieafter.stop = false;
 			wibefore.completedOrNot = true;
 			iibefore.stallOrNot = true;
 			iebefore.stallOrNot = true;
 			embefore.stallOrNot = true;
 			mwbefore.stallOrNot = true;
 
-			while( clock < 10 )
+			int g = 0;
+			while( g == 0 )
 			{
-				cout << "clock = " << clock << endl;
-//				cout << "PC =  " << PC << endl;
+			//	cout << "clock = " << clock << endl;
+			//	cout << "PC =  " << PC << endl;
 
 				iiafter = InstructionFetch( wibefore );
 
-//				cout << "iiafter" << endl;
-//				cout << "instruction = " << iiafter.instruction << " stallOrNot = " << iiafter.stallOrNot << endl;
+			//	cout << "iiafter" << endl;
+			//	cout << "instruction = " << iiafter.instruction << " stallOrNot = " << iiafter.stallOrNot << endl;
 
 				ieafter = InstructionDecodeAndRegisterFetch( iibefore );
+				
+				if( ieafter.stop )
+				{
+					if( PC == 8200 )
+					{
+						cout << "Program Executed Successfully" << endl;
+					}
+					else
+					{
+						cout << "Program Executed and ended abruptly" << endl;
+					}
+					break;
+				}
 
-//				cout << "ieafter" << endl;
-//				cout << "instruction = " << ieafter.instruction << " value1 = " << ieafter.value1 << " value2 = " << ieafter.value2 << " destination = " << ieafter.destination << " stallOrNot = " << ieafter.stallOrNot << endl;
+			//	cout << "ieafter" << endl;
+			//	cout << "instruction = " << ieafter.instruction << " value1 = " << ieafter.value1 << " value2 = " << ieafter.value2 << " destination = " << ieafter.destination << " stallOrNot = " << ieafter.stallOrNot << endl;
 
 				emafter = Execute( iebefore );
 
-//				cout << "emafter" << endl;
-//				cout << "performOrnot = " << emafter.performOrNot << " readOrWrite = " << emafter.readOrWrite << " value = " << emafter.value << " address = " << emafter.address << " stallOrNot = " << emafter.stallOrNot << endl;
+			//	cout << "emafter" << endl;
+			//	cout << "performOrnot = " << emafter.performOrNot << " readOrWrite = " << emafter.readOrWrite << " value = " << emafter.value << " address = " << emafter.address << " stallOrNot = " << emafter.stallOrNot << endl;
 
 				mwafter = MemoryWriteAndRead( embefore );
 
-//				cout << "mwafter" << endl;
-//				cout << "performOrNot = " << mwafter.performOrNot << " value = " << mwafter.value << " reg = " << mwafter.reg << " stallOrNot = " << mwafter.stallOrNot << endl;
+			//	cout << "mwafter" << endl;
+			//	cout << "performOrNot = " << mwafter.performOrNot << " value = " << mwafter.value << " reg = " << mwafter.reg << " stallOrNot = " << mwafter.stallOrNot << endl;
 
 				wiafter = WriteBack( mwbefore );
 
-//				cout << "writeBack" << endl;
-//				cout << "completedOrNot = " << wiafter.completedOrNot << endl;
+			//	cout << "writeBack" << endl;
+			//	cout << "completedOrNot = " << wiafter.completedOrNot << endl;
 
 
 				iibefore = iiafter;
@@ -70,10 +80,8 @@ class Processor
 				embefore = emafter;
 				mwbefore = mwafter;
 				iebefore = ieafter;
-
-				clock++;
 			}
-			cout << "PC = " << PC << endl;
+//			cout << "PC = " << PC << endl;
 		}
 
 		struct IF_ID_RF InstructionFetch( struct WB_IF wi)
@@ -87,7 +95,7 @@ class Processor
 			}
 			else
 			{
-				cout << "IF" << endl;
+//				cout << "IF" << endl;
 				ii.stallOrNot = false;
 				ii.instruction = mem.getWord( PC );
 				PC = PC + 4;
@@ -105,8 +113,9 @@ class Processor
 			}
 			else
 			{
-				cout << "ID/RF" << endl;
+//				cout << "ID/RF" << endl;
 				ie.stallOrNot = false;
+				ie.stop = false;
 
 				int inst = ii.instruction;
 
@@ -179,28 +188,48 @@ class Processor
 				}
 				else if( c == 3 )
 				{
-					int n = 255;
-					int ad = n & inst;
-					
-					if( reg.getRegisterIsUsedOrNot( ad ) == true )
+					int z = 1;
+				       	z = z << 23;
+					int y = z & inst;
+					y = y >> 23;
+//					cout << "y = " << y << endl;
+					if( y == 1 )
 					{
-						ie.stallOrNot = true;
-						return ie;
+						int n = 16383;
+						ie.value1 = n & inst;
+						ie.value2 = 0;
+						n = 31;
+						n = n << 16;
+						cout << " n = " << n << endl;
+						int ad = n & inst;
+						ad = ad >> 16;
+						ie.destination = ad;
 					}
 					else
-						ie.value2 = reg.getRegister( ad );
-
-					n = n << 8;
-					ad = n & inst;
-					ad = ad >> 8;
-					
-					ie.value1 = ad;
-
-					n = n << 8;
-					ad = n & inst;
-					ad = ad >> 16;
-					reg.setRegisterIsUsedOrNot( ad , false );
-					ie.destination = ad;
+					{
+						int n = 255;
+						int ad = n & inst;
+						
+						if( reg.getRegisterIsUsedOrNot( ad ) == true )
+						{
+							ie.stallOrNot = true;
+							return ie;
+						}
+						else
+							ie.value2 = reg.getRegister( ad );
+	
+						n = n << 8;
+						ad = n & inst;
+						ad = ad >> 8;
+						
+						ie.value1 = ad;
+	
+						n = n << 8;
+						ad = n & inst;
+						ad = ad >> 16;
+						reg.setRegisterIsUsedOrNot( ad , false );
+						ie.destination = ad;
+					}
 				}
 				else if( c == 4 )
 				{
@@ -232,40 +261,10 @@ class Processor
 					else
 						ie.destination = reg.getRegister( ad );
 				}
-				else if( c == 5 )
+				else if( c == 5 || c == 6 || c == 10 )
 				{
 					int n = 16383;
 					int ad = n & inst;
-					ie.destination = ad;
-
-					n = 31;
-					n = n << 14;
-					ad = n & inst;
-					ad = ad >> 14;
-					if( reg.getRegisterIsUsedOrNot( ad ) == true )
-					{
-						ie.stallOrNot = true;
-						return ie;
-					}
-					else
-						ie.value2 = reg.getRegister( ad );
-
-					n = n << 5;
-					ad = n & inst;
-					ad = ad >> 19;
-					if( reg.getRegisterIsUsedOrNot( ad ) == true )
-					{
-						ie.stallOrNot = true;
-						return ie;
-					}
-					else
-						ie.value1 = reg.getRegister( ad );
-				}
-				else if( c == 6 )
-				{
-					int n = 16383;
-					int ad = n & inst;
-					
 					ie.destination = ad;
 
 					n = 31;
@@ -300,6 +299,35 @@ class Processor
 					ie.value1 = 0;
 					ie.value2 = 0;
 				}
+				else if( c == 8 )
+				{
+					int n = 16383;
+					ie.value1 = n & inst;
+					ie.value2 = 0;
+					n = 31;
+					n = n << 16;
+//					cout << " n = " << n << endl;
+					int ad = n & inst;
+					ad = ad >> 16;
+//					cout << "ad = " << ad << endl;
+					ie.destination = ad;
+				}
+				else if( c == 9 )
+				{
+					int n = 16383;
+					ie.value1 = n & inst;
+					ie.value2 = 0;
+					n = 31;
+					n = n << 16;
+					int ad = n & inst;
+					ad = ad >> 16;
+					ie.destination = ad;
+				}
+				else if( c == 0 )
+				{
+					ie.stop = true;
+				}
+
 			}
 			return ie;
 		}
@@ -314,7 +342,8 @@ class Processor
 			}
 			else
 			{
-				cout << "EX" << endl;
+//				cout << "EX" << endl;
+//				cout <<"inst = " << ie.instruction << endl;
 				em.stallOrNot = false;
 
 				int inst = ie.instruction;
@@ -368,6 +397,28 @@ class Processor
 					em.address = 32;
 					em.value = ie.destination;
 				}
+				else if( inst == 8 )
+				{
+					em.value = ie.value1 + ie.value2;
+					em.address = ie.destination;
+					em.performOrNot = false;
+				}
+				else if( inst == 9 )
+				{
+					em.value = ie.value1 + ie.value2;
+					em.address = ie.destination;
+					em.performOrNot = false;
+				}
+				else if( inst == 10 )
+				{
+//					cout << "Entered if inst == 10" << endl;
+					if( ie.value1 < ie.value2 )
+						em.value = ie.destination;
+					else
+						em.value = -1;
+					em.address = 32;
+					em.performOrNot = false;
+				}
 			}
 			return em;
 		}
@@ -381,7 +432,7 @@ class Processor
 			}
 			else
 			{
-				cout << "MEM" << endl;
+//				cout << "MEM" << endl;
 				mw.stallOrNot = false;
 				if( em.performOrNot == true )
 				{
@@ -416,7 +467,7 @@ class Processor
 			}
 			else
 			{
-				cout << "WB" << endl;
+//				cout << "WB" << endl;
 				if( mw.performOrNot == false )
 				{
 					wi.completedOrNot = true;

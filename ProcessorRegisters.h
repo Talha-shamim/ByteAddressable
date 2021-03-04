@@ -1,3 +1,7 @@
+#include"Registers.h"
+#include"Memory.h"
+Memory mem;
+Registers reg;
 struct IF_ID_RF
 {
 	int instruction = 0;
@@ -10,6 +14,7 @@ struct ID_RF_EX
 	int value1 = 0;
 	int value2 = 0;
 	int destination = 0;
+	bool stop = false;
 	bool stallOrNot = false;
 };
 

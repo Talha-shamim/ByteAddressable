@@ -1,0 +1,139 @@
+format of instructions:
+
+add $s1,$s2,$s3
+opcode = 1
+
+0-7   bits opcode(1)
+8-15  bits address of destination register( $s1 )(17)
+16-23 bits address of first source register( $s2 )(18)
+24-31 bits address of second source register( $s3 )(19)
+
+sub $s1, $s2, $s3
+opcode = 2
+
+0-7   bits opcode(2)
+0-7   bits opcode
+8-15  bits address of destination register( $s1 )(17)
+16-23 bits address of first source register( $s2 )(18)
+24-31 bits address of second source register( $s3 )(19)
+
+lw $s1, 0($s3)
+opcode = 3
+
+0-7   bits opcode(3)
+8-15  bits address of destination register( $s1 )(17)
+16-23 bits value of offset( 0 )(0)
+24-31 bits address of source register( $s3 )(19)
+
+lw $s1, n
+opcode = 3
+
+0-7   bits opcode(3)
+8th   bit = 1
+9-15  bits address of destination register( $s1 )(17)
+16-31 bits address of n
+
+sw $s1, 0($s2)
+opcode = 4
+
+0-7   bits opcode(4)
+8-15  bits address of destination register( $s1 )(17)
+16-23 bits value of offset( 0 )(0)
+24-31 bits address of source register( $s2 )(18)
+
+beq $s1,$s2,label
+opcode = 5
+
+0-7   bits opcode(5)
+8-12  bits address of first Register( $s1 )(17)
+13-17 bits address of second Register( $s2 )(18)
+18-31 bits address of label
+
+bne $s1,$s2,label
+opcode = 6
+
+0-7   bits opcode(6)
+8-12  bits address of first Register( $s1 )(17)
+13-17 bits address of second Register( $s2 )(18)
+18-31 bits address of label
+
+j loop
+opcode = 7
+
+0-7   bits opcode(7)
+8-31  bits address of loop
+
+li $s1,n
+opcode = 8
+
+0-7   bits opcode(8)
+8-15  bits address of destination Register( $s1 )(17)
+16-31 bits address of n
+
+la $s1,n
+opcode = 9
+
+0-7   bits opcode(9)
+8-15  bits address of destination Register( $s1 )(17)
+16-31 bits address of n
+
+blt $s1,$s2,label
+opcode = 10
+
+0-7   bits opcode(10)
+8-12  bits address of first Register( $s1 )(17)
+13-17 bits address of second Register( $s2 )(18)
+18-31 bits address of label
+
+
+
+User data starts at the address 0
+Instruction data Starts at the address 8200
+
+word starting at the address 8192 should contain the below instruction
+j mymain
+where mymain is the main name given at the .globl declaration
+Ex:
+if the user types
+.global start
+then the instruction should be
+j start
+
+the word starting at the address 8196  should be left empty
+and after parsing the return address $ra( register 31 ) should be initialized to 8196
+and $sp( register 29 ) should be initialized with 12288
+
+
+List of Registers and labels
+0  zero
+1  at
+2  v0
+3  v1
+4  a0
+5  a1
+6  a2
+7  a3
+8  t0
+9  t1
+10 t2
+11 t3
+12 t4
+13 t5
+14 t6
+15 t7
+16 s0
+17 s1
+18 s2
+19 s3
+20 s4
+21 s5
+22 s6
+23 s7
+24 t8
+25 t9
+26 k0
+27 k1
+28 gp
+29 sp
+30 s8
+31 ra

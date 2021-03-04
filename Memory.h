@@ -48,23 +48,48 @@ class Memory
 
 		void print()
 		{
-			for( int i = 0 ; i < 40 ; i+=4 )
+			cout << "User Memory" << endl;
+			for( int i = 0 ; i < 100 ; i+=4 )
 			{
 				int k = getWord( i );
 				int n = 1 << 31;
+				cout << " " << i << "   ";
 				
 				for( int j = 1 ; j <= 32 ; j++ )
 				{
 					if( n & k )
 						cout << "1 ";
 					else
-						cout << "0 ";
+						cout << "* ";
 					if( j % 8 == 0 )
-						cout << "	";
+						cout << "  ";
 
 					k = k << 1;
 				}
-				cout << endl;
+				cout << "  ";
+				cout << getWord(i) << endl;
+			}
+
+			cout << "Instruction Memory" << endl;
+			for( int i = 8192 ; i < 8300 ; i+=4 )
+			{
+				int k = getWord( i );
+				int n = 1 << 31;
+				cout << " " << i << "   "; 
+				
+				for( int j = 1 ; j <= 32 ; j++ )
+				{
+					if( n & k )
+						cout << "1 ";
+					else
+						cout << "* ";
+					if( j % 8 == 0 )
+						cout << "  ";
+
+					k = k << 1;
+				}
+				cout << "  ";
+				cout << getWord( i ) << endl;
 			}
 		}
 };
