@@ -1,0 +1,39 @@
+.data
+	n:
+		.word 10, 8, 3, 4, 1, 7, 2, 9, 6, 5, 13, 20, 17, 18, 12, 19, 16, 11, 15, 14
+.text
+.globl main
+main:
+	li $t0, 4
+	li $t3, 1
+	la $s0, n
+	add $s1, $s0, $t0
+	li $v0, 0
+	li $v1, 1
+	li $t1, 20
+	li $t2, 20
+
+	OuterLoop:
+		beq $v0, $t1, exit
+		add $s2, $s0, $zero
+		add $s3, $s1, $zero
+		InnerLoop:
+			beq $v1, $t2, break
+			lw $k0, 0($s2)
+			lw $k1, 0($s3)
+			blt $k0, $k1, continue
+			sw $k1, 0($s2)
+			sw $k0, 0($s3)
+			continue:
+				add $s2, $s2, $t0
+				add $s3, $s3, $t0
+				add $v1, $v1, $t3
+				j InnerLoop
+		break:
+			sub $t2, $t2, $t3
+			sub $t1, $t1, $t3
+			li $v1, 1
+			j OuterLoop
+	exit:
+			
+	
