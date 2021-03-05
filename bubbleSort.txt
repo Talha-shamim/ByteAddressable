@@ -1,17 +1,19 @@
 .data
-	n:
+	arr:
 		.word 10, 8, 3, 4, 1, 7, 2, 9, 6, 5, 13, 20, 17, 18, 12, 19, 16, 11, 15, 14
+	size:
+		.word 20
 .text
 .globl main
 main:
 	li $t0, 4
 	li $t3, 1
-	la $s0, n
+	la $s0, arr
 	add $s1, $s0, $t0
 	li $v0, 0
 	li $v1, 1
-	li $t1, 20
-	li $t2, 20
+	lw $t1, size
+	lw $t2, size
 
 	OuterLoop:
 		beq $v0, $t1, exit
