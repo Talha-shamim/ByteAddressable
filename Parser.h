@@ -6,7 +6,7 @@ map<string, pair<int,int>> reserveWords;
 map<string, int> registersSet;
 map<string, int> labels;
 
-class Parser{
+class Assembler{
     int skipSpaces(string s, int idx){
         while (idx<s.length() and  s[idx] == ' '){
             idx++;
