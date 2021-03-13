@@ -1,7 +1,7 @@
-#include"Registers.h"
+#include"Register.h"
 #include"Memory.h"
 Memory mem;
-Registers reg;
+Register reg;
 struct IF_ID_RF
 {
 	int instruction = 0;
