@@ -1,6 +1,9 @@
+#include"assembler.h"
+#include<iostream>
+#include<fstream>
 int main()
 {
-    ifstream f("ac.txt");
+    ifstream f("bubbleSort.txt");
     string str;
     if(f){
         ostringstream ss;
@@ -41,7 +44,7 @@ int main()
     registersSet.insert({"s8", 30});
     registersSet.insert({"ra", 31});
 
-    Parser parser;
+    Assembler parser;
 
     mem.print();
     reg.showAllRegisters();
