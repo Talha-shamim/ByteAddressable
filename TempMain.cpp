@@ -3,12 +3,21 @@
 #include<fstream>
 int main()
 {
-    ifstream f("bubbleSort.txt");
+	cout << "Enter the file name along with the extension( .s or .asm or .txt )" << endl;
+	cout << "( the file should be in the same directory that contains this code )" << endl;
+	string filename;
+	cin >> filename;
+    ifstream f(filename);
     string str;
     if(f){
         ostringstream ss;
         ss << f.rdbuf();
         str = ss.str();
+    }
+    else
+    {
+	    cout << "The file doesn't exist or cannot be opened" << endl;
+	    return 0;
     }
 
     registersSet.insert({"zero", 0});
@@ -46,12 +55,22 @@ int main()
 
     Assembler parser;
 
+    cout << "Memory and Registers before Parsing and storing the instructions" << endl;
     mem.print();
     reg.showAllRegisters();
-    cout << parser.parse(str, 0) << endl;
+    int i = parser.parse( str , 0 );
+    if( i != 1 )
+    {
+	    cout << "Error while Parsing the program" << endl;
+	    cout << "Terminating...." << endl;
+	    return 0;
+    }
+    cout << "Memory and Registers after parsing and before processing" << endl;
     mem.print();
+    reg.showAllRegisters();
     Processor pr;
     pr.Process();
+    cout << "Memory and Registers after successfully Executing the program" << endl;
     mem.print();
     reg.showAllRegisters();
 
