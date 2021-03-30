@@ -1,0 +1,106 @@
+.neon{
+    color: #CCCCCC;
+    text-shadow: 0 1px 0 #999999, 0 2px 0 #888888,
+             0 3px 0 #777777, 0 4px 0 #666666,
+             0 5px 0 #555555, 0 6px 0 #444444,
+             0 7px 0 #333333, 0 8px 7px rgba(0, 0, 0, 0.4),
+             0 9px 10px rgba(0, 0, 0, 0.2);
+    background-image: linear-gradient(black,white);
+    line-height: 100px;
+    font-size: 60px;
+    animation: move 1s;
+    text-align: center;
+}
+
+.main-head{
+        color: #CCCCCC;
+        text-shadow: 0 1px 0 #999999, 0 2px 0 #888888,
+                 0 3px 0 #777777, 0 4px 0 #666666,
+                 0 5px 0 #555555, 0 6px 0 #444444,
+                 0 7px 0 #333333, 0 8px 7px rgba(0, 0, 0, 0.4),
+                 0 9px 10px rgba(0, 0, 0, 0.2);
+        background-image: linear-gradient(white,black);
+        line-height: 100px;
+        font-size: 60px;
+        animation: move 1s;
+        text-align: center;
+        margin-top: -25px;
+}
+
+.main-head-start{
+    text-align: center;
+    letter-spacing: 2px;
+    text-decoration: none;
+    color: white;
+    line-height: 40px;
+    font-size: 30px;
+    border-bottom: 2px solid white;
+    font-family: monospace;
+}
+
+.desc{
+    color: #CCCCCC;
+    line-height: 100px;
+    font-size: 30px;
+    text-align: center;
+}
+
+.main-head-start:hover{
+    animation: up 2s ease infinite;
+}
+
+.btn:hover{
+    color: black;
+    background-color: white;
+}
+
+@keyframes button-hover {
+    100% {
+        border-bottom: 10px black;
+    }
+}
+
+@keyframes up {
+    100% {
+        color: #D0F8FF;
+        text-shadow: 0 0 5px #A5F1FF, 0 0 10px #A5F1FF,
+                 0 0 20px #A5F1FF, 0 0 30px #A5F1FF,
+                 0 0 40px #A5F1FF;
+        font-size:50px;
+    }
+}
+
+@keyframes move {
+    0%   {background-color: black;}
+    100% {background-color: white;}
+}
+
+textarea{
+    width: 100vw;
+    height: 100vh;
+    color: white !important;
+    background-color: rgb(0, 0, 0);
+}
+
+.btn{
+    margin-top: -10px;
+    margin-bottom: 20px;
+    background-color: black;
+    color: white;
+}
+
+.main{
+    background-image: url('./back.webp');
+}
+
+.separator-main{
+    margin-top: 300px;
+}
+
+.sep{
+    visibility: hidden;
+}
+
+.separator{
+    margin-top: 10px;
+}
