@@ -48,12 +48,12 @@ class Assembler{
         int parse(string s, int idx){
             
 
-            int ipc = 8192;
-            int upc = 0000;
-
-            bool beforeMain = true;
-            bool withAddress = true;
+            int ipc = 8200;
+            int upc = 0000; 
+	    bool beforeMain = true;
+	    bool withAddress = true;
             bool getText = false;
+            bool take_keyword = false;
 
             while(idx<s.length()){
                 string initMain = "";
@@ -66,6 +66,25 @@ class Assembler{
                         idx = skipTabs(s,idx);
                         idx = skiplines(s,idx);
                         initMain = getKeyword(s,idx);
+                        idx = skipSpaces(s,idx);
+                        idx = skipTabs(s,idx);
+                        idx = skiplines(s,idx);
+                        
+                        if(initMain.substr(0,1)=="#" || initMain=="#"){
+                            while(s[idx]!='.'){
+                                idx++;
+                            }
+                            take_keyword = true;
+                        }
+                        
+                        if(take_keyword){
+                            idx = skipSpaces(s,idx);
+                            idx = skipTabs(s,idx);
+                            idx = skiplines(s,idx);
+                            idx = skipSpaces(s,idx);
+                            idx = skipTabs(s,idx);
+                            initMain = getKeyword(s,idx);
+                        }
 
                         if(initMain == ".data"){
                             initMain = "";
@@ -91,7 +110,25 @@ class Assembler{
                                     initMain = "";
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
+                                    idx = skiplines(s,idx);
                                     initMain = getKeyword(s,idx);
+
+                                    take_keyword = false;
+
+                                    if(initMain.substr(0,1)=="#"){
+                                        while(s[idx]!='.'){
+                                            idx++;
+                                        }
+                                        take_keyword = true;
+                                    }
+
+                                    if(take_keyword){
+                                        idx = skipSpaces(s,idx);
+                                        idx = skipTabs(s,idx);
+                                        idx = skiplines(s,idx);
+                                        initMain = getKeyword(s,idx);
+                                    }
+
                                     if(initMain==".word"){
                                         while(s[idx]!='\n'){
                                             idx = skipSpaces(s,idx);
@@ -101,6 +138,10 @@ class Assembler{
                                             while(s[idx]!='\n' and s[idx]!=',' and s[idx]!=' '){
                                                 num += s[idx];
                                                 idx++;
+                                            }
+                                            if(num.substr(0,1)=="#"){
+                                                while(s[idx]!='\n')idx++;
+                                                goto anotherValue;
                                             }
                                             idx = skipCommas(s,idx);
                                             idx = skipSpaces(s,idx);
@@ -153,6 +194,22 @@ class Assembler{
                         idx = skiplines(s,idx);
                         initMain = getKeyword(s,idx);
 
+                        take_keyword = false;
+
+                        if(initMain.substr(0,1)=="#"){
+                            while(s[idx]!='.'){
+                                idx++;
+                            }
+                            take_keyword = true;
+                        }
+
+                        if(take_keyword){
+                            idx = skipSpaces(s,idx);
+                            idx = skipTabs(s,idx);
+                            idx = skiplines(s,idx);
+                            initMain = getKeyword(s,idx);
+                        }
+
                         if(initMain == ".globl"){
                             initMain = "";
                         }
@@ -174,8 +231,23 @@ class Assembler{
                         idx = skiplines(s,idx);
                         idx = skipSpaces(s,idx);
                         idx = skipTabs(s,idx);
-                        idx = skiplines(s,idx);
                         initMain = getKeyword(s,idx);
+
+                        take_keyword = false;
+
+                        if(initMain.substr(0,1)=="#"){
+                            while(s[idx]!='\n'){
+                                idx++;
+                            }
+                            take_keyword = true;
+                        }
+
+                        if(take_keyword){
+                            idx = skipSpaces(s,idx);
+                            idx = skipTabs(s,idx);
+                            idx = skiplines(s,idx);
+                            initMain = getKeyword(s,idx);
+                        }
 
                         if(initMain == "main:"){
                             initMain = "";
@@ -213,13 +285,14 @@ class Assembler{
                         instruction = getKeyword(s,idx);
 
                         int registerInst[3] = {-1};
+
                         if (instruction == "add" || instruction == "sub"){
                             int registerIdx = 0;
                             while (registerIdx <= 2){
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }
                                 else{
@@ -233,7 +306,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -244,7 +317,7 @@ class Assembler{
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
                                     if (s[idx] != ',' and registerIdx != 3){
-                                        cout<<"Error : expecting a comma in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : expecting a comma in line "<<(ipc-8196)/4<<endl;
                                         return -4;
                                     }else{
                                         idx++;
@@ -297,7 +370,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -310,7 +383,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -321,7 +394,7 @@ class Assembler{
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
                                     if (s[idx] != ',' and registerIdx != 2){
-                                        cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                         return -4;
                                     }else{
                                         idx++;
@@ -337,7 +410,7 @@ class Assembler{
 
                             if(x==2){
                                 if (labels.find(label)==labels.end()){
-                                    cout<<"Error : label not found in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : label not found in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     lbl = labels.find(label)->second;
@@ -410,7 +483,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -423,7 +496,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -434,7 +507,7 @@ class Assembler{
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
                                     if (s[idx] != ','){
-                                        cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                         return -1;
                                     }else{
                                         idx++;
@@ -454,7 +527,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '('){
-                                    cout<<"Error : expecting ( in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting ( in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -462,7 +535,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -476,7 +549,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -487,7 +560,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != ')'){
-                                    cout<<"Error : expecting ) in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting ) in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -530,7 +603,7 @@ class Assembler{
                             }else{
                                 string var = getKeyword(s,idx);
                                 if(reserveWords.find(var)==reserveWords.end()){
-                                    cout<<"Error : variable not found in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : variable not found in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     if(x==2 and instruction=="lw"){
@@ -560,7 +633,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }
                                 else{
@@ -574,7 +647,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -585,7 +658,7 @@ class Assembler{
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
                                     if (s[idx] != ',' and registerIdx != 1){
-                                        cout<<"Error : expecting a comma in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : expecting a comma in line "<<(ipc-8196)/4<<endl;
                                         return -1;
                                     }else{
                                         idx++;
@@ -623,7 +696,7 @@ class Assembler{
 
                             if(x==2){
                                 if (labels.find(label)==labels.end()){
-                                    cout<<"Error : label not found in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : label not found in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     lbl = labels.find(label)->second;
@@ -647,7 +720,7 @@ class Assembler{
                                 idx = skipSpaces(s,idx);
                                 idx = skipTabs(s,idx);
                                 if (s[idx] != '$'){
-                                    cout<<"Error : expecting a $ in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : expecting a $ in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     idx++;
@@ -661,7 +734,7 @@ class Assembler{
                                     }else reg += s[idx + 1];
 
                                     if (registersSet.find(reg) == registersSet.end()){
-                                        cout<<"Error : Register not found in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : Register not found in line "<<(ipc-8196)/4<<endl;
                                         return -3;
                                     }else{
                                         auto it = registersSet.find(reg);
@@ -672,7 +745,7 @@ class Assembler{
                                     idx = skipSpaces(s,idx);
                                     idx = skipTabs(s,idx);
                                     if (s[idx] != ',' and registerIdx != 1){
-                                        cout<<"Error : expecting a comma in line "<<(ipc-8188)/4<<endl;
+                                        cout<<"Error : expecting a comma in line "<<(ipc-8196)/4<<endl;
                                         return -4;
                                     }else{
                                         idx++;
@@ -687,7 +760,7 @@ class Assembler{
                             int lbl;
                             if(x==2){
                                 if (reserveWords.find(label)==reserveWords.end()){
-                                    cout<<"Error : variable not found in line "<<(ipc-8188)/4<<endl;
+                                    cout<<"Error : variable not found in line "<<(ipc-8196)/4<<endl;
                                     return -1;
                                 }else{
                                     lbl = reserveWords.find(label)->second.second;
@@ -711,6 +784,11 @@ class Assembler{
                         }
 
                         if(x==1){   
+		            if(instruction.length() > 0 and instruction.at( instruction.length()-1) != ':' )
+			    {
+				    cout << "Unknown String Encountered in line " << (ipc-8196)/4 << endl;
+				    return -1;
+			    }
                             instruction = instruction.substr(0,instruction.length()-1);
                             labels.insert(make_pair(instruction, ipc));
                             goto newInst;

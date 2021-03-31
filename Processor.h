@@ -111,7 +111,7 @@ class Processor
 						{
 							stop = false;
 							cout << "Program Terminated abruptly" << endl;
-							return NULL;
+							return "";
 						}
 						else if( s == "c" )
 						{
@@ -249,6 +249,9 @@ class Processor
 				if( emafter.stallOrNot )
 				{
 					wiafter.OperateOrNot = false;
+					if( ieafter.regSetToUsed != -1 )
+						reg.setRegisterIsUsedOrNot( ieafter.regSetToUsed , false );
+
 					iibefore = tempr;
 				}
 				else
@@ -287,6 +290,9 @@ class Processor
 
 			int loweri = 1;
 			int upperi = 10;
+			if( k < 10 )
+				upperi = k;
+
 			int lowerc = 0;
 			int upperc = 0;
 			while( true )
@@ -411,13 +417,16 @@ class Processor
 			file = file + "Total Number of Stalls because of Data Dependency between successive Instructions = " + to_string( NoOfStallsBecauseOfDataDependency ) + "\n";
 			file = file + "Total Number of Stall Cycles = " + to_string( TotalNoOfStalls ) + "\n\n";
 			file = file + "Total Number of Clock Cycles taken to Execute the Entire Program = " + to_string( clock ) + "\n\n";
+			file = file + "Note:\n\t";
+			file = file + "Total Number of Instructions Executed will also contain 1 NULL instruction which is used to terminate the Program\n\n";
 			string tfile = file;
 			file = file + str;
 
 			ofstream out(filename);
 			out << file;
 			out.close();
-			mem.WriteToFile();	
+			mem.WriteToFile();
+			reg.WriteToFile();	
 			return tfile;
 		}
 
@@ -630,7 +639,7 @@ class Processor
 						add = add >> 16;
 						ie.destination = add;
 
-						ins = ins + "lw " + "$" + to_string(add) + "," + to_string(ad1) + "($" + to_string(ad2) + ")\t";
+						ins = ins + "lw " + "$" + to_string(add) + "," + to_string(ad1) + "($" + to_string(ad2) + ")  ";
 						ie.ins = ins;
 
 						if( reg.getRegisterIsUsedOrNot( ad2 ) == true )
@@ -669,7 +678,7 @@ class Processor
 					int add = n & inst;
 					add = add >> 16;
 					
-					ins = ins + "sw " + "$" + to_string(add) + "," + to_string(ad1) + "($" + to_string(ad2) + ")\t";
+					ins = ins + "sw " + "$" + to_string(add) + "," + to_string(ad1) + "($" + to_string(ad2) + ")  ";
 					ie.ins = ins;
 
 					if( reg.getRegisterIsUsedOrNot( ad2 ) == true )
@@ -1125,7 +1134,7 @@ class Processor
 					cout << "\t\t\t\t" ;
 				}
 				
-				if( mem.getWord( m ) != 0 )
+				if( true )
 				{
 					if( memo == m )
 					{

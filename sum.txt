@@ -1,0 +1,21 @@
+.data
+	arr:
+		.word 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+	size:
+		.word 10
+.text
+.globl main
+main:
+	li $t0,1
+	li $t1,4
+	li $v0,0
+	lw $v1,size
+	la $a0,arr
+	jump:
+	beq $v0,$v1,exit
+	lw $s0,0($a0)
+	add $s3,$s3,$s0
+	add $v0,$v0,$t0
+	add $a0,$a0,$t1
+	j jump
+	exit:
