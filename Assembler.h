@@ -784,11 +784,6 @@ class Assembler{
                         }
 
                         if(x==1){   
-		            if(instruction.length() > 0 and instruction.at( instruction.length()-1) != ':' )
-			    {
-				    cout << "Unknown String Encountered in line " << (ipc-8196)/4 << endl;
-				    return -1;
-			    }
                             instruction = instruction.substr(0,instruction.length()-1);
                             labels.insert(make_pair(instruction, ipc));
                             goto newInst;

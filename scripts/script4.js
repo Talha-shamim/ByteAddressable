@@ -4,7 +4,7 @@ let pipelinedarea = document.getElementById("pipelined-area")
 setTimeout(getfile,100);
 
 function getfile () {
-    fetch('../output.txt').then(function(response){
+    fetch('../PipelineWithoutOperandForwarding.txt').then(function(response){
         return response.text();
     })
     .then(function(data){

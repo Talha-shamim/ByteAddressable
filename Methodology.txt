@@ -51,5 +51,13 @@ If error found will stop and show the error
 Else continue with the second round and save the code in memory
 
 ========================================================================
+Register:
+	it contains all the resisters in a pair wise manner with its name and value
+	it has function for writing to file, setters and getters - one by one and all at once
+========================================================================
+The Gui part:
+	We have used html,css,js for this 
+	to open the gui you need to open the index.html file in a lve server.
+========================================================================
 Test Main:
 	It creates an object of Assembler and Processor and calls both the functions and prints the memory and registers values.
