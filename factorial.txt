@@ -1,0 +1,50 @@
+.data
+	n:
+		.word 4
+.text
+.globl main
+
+factorial:
+	bne $s2, $t1, continue
+
+	lw $ra,0($sp)
+	addi $sp,$sp,4
+	jr $ra
+
+	continue:
+		sub $s2,$s2,$t1
+		mul $s1,$s1,$s2
+
+		sub $sp,$sp,$k0
+		la $ra,return
+		sw $ra, 0($sp)
+
+		jal factorial
+
+		return:
+			lw $ra, 0($sp)
+			addi $sp,$sp,4
+			jr $ra
+
+main:
+		li $t0,0
+		li $t1,1
+		li $k0,4
+
+		lw $s0,n
+		addi $s1,$s0,0
+		addi $s2,$s0,0
+
+		beq $s1,$t0,print
+		
+		addi $t7, $ra, 0
+		sub $sp,$sp,$k0
+		la $ra,print
+		sw $ra,0($sp)
+
+		jal factorial
+
+		print:
+		addi $ra,$t7, 0
+
+		jr $ra

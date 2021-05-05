@@ -43,22 +43,6 @@ class Register{
                 }
             }
             return str;
-        }
-
-        // to display the registers in a go
-        void showStepWiseRegisters(int r_no){
-            
-            cout<<endl<<"\e[35m" <<"                  || Printing the registers ||"<<"\e[0m" <<endl;
-            for(int i=0;i<32;i++){
-                if(i==r_no){
-                cout<<"|------------------------------------------------------------------------|"<<endl;
-                    cout<<"          "<< "\e[33m" <<registerName[i]<<  "\e[0m" << "       --->        " << "\e[33m" <<registers[i].value<< "\e[0m" << endl;
-                }else{
-                cout<<"|-----------------------------------------------------------------------------|"<<endl;
-                cout<<"                     "<<registerName[i]<<"       --->        "<<registers[i].value<<endl;
-                }
-            }
-            
         } 
 
         // for setting the attributr value

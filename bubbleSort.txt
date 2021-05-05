@@ -1,6 +1,6 @@
 .data
 arr:    #array to be sorted
-	.word 10, 8, 3, 4, 1, 7, 2, 9, 6, 5, 13, 20, 17, 18, 12, 19, 16, 11, 15, 14
+	.word 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
 size:   #size of the array
 	.word 20
 .text
@@ -16,11 +16,9 @@ main:
 	lw $t2, size
 
 OuterLoop:
-	beq $v0, $t1, exit		#if the loopcounter is equal to 0 ( from the size ) exit
 	add $s2, $s0, $zero		#load the address of first element
 	add $s3, $s1, $zero		#load the address of second element
 	InnerLoop:
-		beq $v1, $t2, break	#if the loopcounter equals the size break the inner loop
 		lw $k0, 0($s2)		#load the element 1
 		lw $k1, 0($s3)		#load the element 2
 		blt $k0, $k1, continue	#if element 1 is the less than element 2 skip the swap
@@ -30,10 +28,11 @@ OuterLoop:
 			add $s2, $s2, $t0	#increment the address so that the element 1 becomes element 2 and element 2 becomes element 3
 			add $s3, $s3, $t0	
 			add $v1, $v1, $t3	#increment loop counter
-			j InnerLoop		#repeat the loop
+			bne $v1, $t2, InnerLoop	#if the loopcounter not equals the size continue the innerloop
 	break:				#by this time the last will the greatest element
 		sub $t2, $t2, $t3	#decrement the loop counters
 		sub $t1, $t1, $t3
 		li $v1, 1		#restore v1 back to 1
-		j OuterLoop
+		bne $t3, $t1, OuterLoop	#if the loopcounter is equal to 0 , exit
 exit:
+	jr $ra

@@ -1,0 +1,29 @@
+.data
+	n:
+		.word 16383
+.text
+.globl main
+main:
+	lw $a3, n
+	li $t0, 2
+	li $s0, 0
+	li $s1, 0
+
+	li $s2, 32
+	li $s3, 0
+	li $s4, 1
+
+	start:
+		and $s5, $a3, $s4
+		beq $s5, $s4, increment1
+		addi $s0, $s0, 1
+		j continue
+		increment1:
+			addi $s1,$s1,1
+		
+		continue:
+			addi $s3, $s3, 1
+			mul $s4, $s4, $t0
+			bne $s2, $s3, start
+	end:
+	jr $ra

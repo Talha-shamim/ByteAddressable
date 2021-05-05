@@ -51,53 +51,6 @@ class Memory
 			mem[address] = c;
 		}
 
-		void print()
-		{
-			cout << "User Memory" << endl;
-			for( int i = 0 ; i < 150 ; i+=4 )
-			{
-				int k = getWord( i );
-				int n = 1 << 31;
-				cout << " " << i << "   ";
-				
-				for( int j = 1 ; j <= 32 ; j++ )
-				{
-					if( n & k )
-						cout << "1 ";
-					else
-						cout << "* ";
-					if( j % 8 == 0 )
-						cout << "  ";
-
-					k = k << 1;
-				}
-				cout << "  ";
-				cout << getWord(i) << endl;
-			}
-
-			cout << "Instruction Memory" << endl;
-			for( int i = 8192 ; i < 8400 ; i+=4 )
-			{
-				int k = getWord( i );
-				int n = 1 << 31;
-				cout << " " << i << "   "; 
-				
-				for( int j = 1 ; j <= 32 ; j++ )
-				{
-					if( n & k )
-						cout << "1 ";
-					else
-						cout << "* ";
-					if( j % 8 == 0 )
-						cout << "  ";
-
-					k = k << 1;
-				}
-				cout << "  ";
-				cout << getWord( i ) << endl;
-			}
-		}
-
 		void WriteToFile()
 		{
 			string str = "                            User Memory( WordWise )\n";
@@ -189,7 +142,7 @@ class Memory
 			c = inst & n;
 			c = c >> 24;
 
-			if( c == 1 )
+			if( c == 1 or c == 2 or c == 12 or c == 13 or c == 14 )
 			{
 				int n = 255;
 				int ad2 = n & inst;
@@ -203,23 +156,19 @@ class Memory
 				int add = n & inst;
 				add = add >> 16;
 
-				ins = ins + "add " + "$" + to_string(add) + ",$" + to_string(ad1) + ",$" + to_string(ad2);
+				if( c == 1 )
+						ins = ins + "add ";
+					else if( c == 2 )
+						ins = ins + "sub ";
+					else if( c == 12 )
+						ins = ins + "mul ";
+					else if( c == 13 )
+						ins = ins + "and ";
+					else if( c == 14 )
+						ins = ins + "or ";
 
-			}
-			else if( c == 2 )
-			{
-				int n = 255;
-				int ad2 = n & inst;
+				ins = ins + "$" + to_string(add) + ",$" + to_string(ad1) + ",$" + to_string(ad2);
 
-				n = n << 8;
-				int ad1 = n & inst;
-				ad1 = ad1 >> 8;
-					
-				n = n << 8;
-			       	int add = n & inst;
-				add = add >> 16;
-
-				ins = ins + "sub " + "$" + to_string(add) + ",$" + to_string(ad1) + ",$" + to_string(ad2);
 			}
 			else if( c == 3 )
 			{
@@ -235,7 +184,7 @@ class Memory
 					n = n << 16;
 					int ad = n & inst;
 					ad = ad >> 16;
-					ins = ins + "lw " + "$" + to_string(ad) + "," + to_string(value1) + "\t";
+					ins = ins + "lw " + "$" + to_string(ad) + "," + to_string(value1);
 					}
 				else
 				{
@@ -268,7 +217,7 @@ class Memory
 					
 				ins = ins + "sw " + "$" + to_string(add) + "," + to_string(ad1) + "($" + to_string(ad2) + ")";
 			}
-			else if( c == 5 || c == 6 || c == 10 )
+			else if( c == 5 || c == 6 || c == 10 || c == 15 )
 			{
 				int n = 16383;
 				int add = n & inst;
@@ -286,17 +235,26 @@ class Memory
 					ins = ins + "beq";
 				else if( c == 6 )
 					ins = ins + "bne";
-				else
+				else if( c == 10 )
 					ins = ins + "blt";
+				else if( c == 15 )
+					ins = ins + "bgt";
 
 				ins = ins + " $" + to_string(ad1) + ",$" + to_string(ad2) + "," + to_string(add);
 			}
-			else if( c == 7 )
+			else if( c == 7 or c == 17 or c == 16 )
 			{
 				int n = 16383;
 				int ad = n & inst;
 
-				ins = ins + "j " + to_string(ad) + "\t";
+				if( c == 7 )
+					ins = ins + "j ";
+				else if( c == 17 )
+					ins = ins + "jal ";
+				else if( c == 16 )
+					ins = ins + "jr $";
+
+				ins = ins + to_string(ad);
 			}
 			else if( c == 8 )
 			{
@@ -308,7 +266,7 @@ class Memory
 
 				int ad = n & inst;
 				ad = ad >> 16;
-				ins = ins + "li $" + to_string(ad) + "," + to_string(value1) + "\t";
+				ins = ins + "li $" + to_string(ad) + "," + to_string(value1);
 			}
 			else if( c == 9 )
 			{
@@ -318,12 +276,31 @@ class Memory
 				n = n << 16;
 				int ad = n & inst;
 				ad = ad >> 16;
-				ins = ins + "la $" + to_string(ad) + "," + to_string( value1 ) + "\t";
+				ins = ins + "la $" + to_string(ad) + "," + to_string( value1 );
+			}
+			else if( c == 11 )
+			{
+				int n = 16383;
+				int value1 = n & inst;
+
+				n = 31;
+				n = n << 14;
+				int ad1 = n & inst;
+				ad1 = ad1 >> 14;
+
+				n = n << 5;
+				int add = n & inst;
+				add = add >> 19;
+				
+				ins = ins + "addi $" + to_string(add) + ",$" + to_string(ad1) + ", " + to_string( value1 );
 			}
 			else if( c == 0 )
 			{
 					ins = "NULL\t";
 			}
+			int s = 18-(int)ins.length();
+			for( int k = 0 ; k < s ; k++ )
+				ins = ins + " ";
 
 			return ins;
 		}
