@@ -1,0 +1,158 @@
+Project Name        : Byte Addressable
+Project done by     : Talha Shamim - CS19B050 , Poorna Syama Sundar - CS19B049
+Language used       : C++
+
+Project Description : Byte Addressable is a MIPS Simulator, Debugger, and also a tool to understand basic concepts of Pipelining and Cache.
+Features of Byte Addressable:
+	-Allows the user to execute a MIPS Assembly code that supports 16 different instructions.
+	-Allows the user to debug the code using the step-by-step execution feature of the program.
+	-Can execute a single Assembly code in 20 different types of execution modes and produce the corresponding Execution diagrams for the same.
+	-Supports a fully customizable Two-level cache.
+	-Comes with the option to enable or disable Operand forwarding, early branch resolution, Branch Predictor, and Pipelined Execution.
+
+Documentation of the Source Code:
+Byte Addressable is written in C++ and it’s a terminal based program, which makes the programmers easier to use it. There are in Total of 6 main classes in the Source Code. The Explanation for each class is given below.
+
+Assembler:The class handles the code initially given by user as a assembly level language.This takes the code and first check for errors and if found the it returns from that point and the error is displayed in the terminal.
+
+After making sure of the errors the assemblar saves all the labels along with the program counter including the starting address of the main where it finally returns.Then it converts the code from assembly level to machine level and also stores the same instruction wise in the instruction memory and the data provided in the .data section in the user memory.Also the Assemblar do not saves the code till it has read it for the errors only after making sure the code is error free it starts the process of converting to binary and saving into the memory for the instruction part.
+
+Once done with all these it passes the control for further processing.
+It has few functions for making things handy and readable like skipspaces (for skipping the spaces), similarly it has skipLines, skipCommas and skipTabs. Also a fuction for getting the new keyword and finnaly a parse function which accepts the string and initial index i.e 0. All of these functions accepts the same arguments i.e string s (the whole code) and the index where the string is being read now.
+
+The whole asssemblar is divided in 2 parts first one for before main and the second one for after main. The first part checks the code till the .data and .text segment and stores the variable along with the value and the second part does same for the instruction part as explained above.
+
+The Instruction includes - add, addi, sub, mul, and, or, la, li, lw - (with address and without address), sw, beq, bne, blt, bgt, jr, jal, j. The details of which is given in the instruction.txt file.
+
+Also it has clubbles together the instructions on the basis of similarity of registers it uses like (arithmetic instructions) add, sub, mul, and & or use 3 registers so they are clubbed together in one set.Similarly all the comparing instructions are clubbled together and so on.
+
+The working of arithmetic instruction is like operating on 2nd and 3rd register and storing in the 1st register, for comparing instructions it compares 1st and 2nd register and then reads the label after reading the label it gets the address and then act accordingly. 
+
+The la and li works like reading a register and then reading a variable for address and a number respectively.
+
+Memory operators i.e lw which is of 2 type as explained above (with and without address) first reads the register then checks for offset and reads another registers when it is without address else it reads 1 register and then the variable name for the value.Similarly the sw works where it reads a register, finds the offset and then another register.
+
+Finally after reading all the instruction it saves another instruction explicitly to return back to main which is a jump instruction and the assemblar is done with its role.
+
+Register : 
+The class handles the registers required. It contains of one more class of which the registers are made of and contains value and a boolean for keeping the track of is used or not.It basically has the array of the class named Pair.And for storing the name of regisiter it has a array of string.
+
+It has methods :- 
+void initializeRgister() calling this would initialize all the registers with value zero and boolean false.
+
+void showAllRegisters() calling this will print the registers alsong with their name and value.
+
+string getOneRegister(int r_no) (r_no is the register no) calling this will return a string having the register name and value.
+
+void showStepWiseRegister(int r_no)(r_no is the register no) calling this will display all the registers but the for the given register no in the parameter the colour will be changed.
+
+void setRegister(r_no, value) 
+int getRegister(r_no)
+then we have setters and getters which acchepts the value and register no and sets the same register with that value and returns the value of the register no provided respectively.
+
+bool getRegisterIsUsedOrNot(int r_no)
+void setRegisterIsUsedOrNot(int t_no)
+It also has the setters and getters for the boolean attribute which returns and changes the value respectively.
+
+And finally it has a fucntion void WriteToFile() to write to file which writes the content of the register to file named Registers.txt.
+
+Processor:
+
+	This class handles the execution of the binary instructions that are parsed by the Assembler. It contains 5 functions for the 5 different Pipeline stages of the Execution. The function description for each function is given below:
+	1. struct IF_ID_RF InstructionFetch( struct WB_IF wi , int inscnt );
+		This function handles the IF stage of the execution. It takes a struct WB_IF(which can be imagined as a Pipeline register between WB stage and IF stage, which doesn't exist in reality but helps the simulation to be much more simple ) and the dynamic instruction count as input and returns a struct IF_ID_RF as output, this struct can be assumed to be the pipeline register between IF and ID/RF stage. It basically fetches the instruction pointed by the Program Counter (PC) and increments it, if the branch predictor is not enabled (or) the Instruction pointed by the PC which is returned by the branch predictor and incrementing the PC accordingly if Branch Predictor is enabled.
+
+	2. struct IF_RF_EX InstructionDecodeAndRegisterFetch( struct IF_ID_RF ii, bool of )
+		This function handles the ID/RF stage of the execution. It takes the struct IF_ID_RF and a bool value as inputs and outputs a struct ID_RF_EX variable. The input struct IF_ID_RF is actually the output of the previous function and the bool tells whether Operand forwarding is enabled or not. It actually decodes the instruction and fetches all the required registers for the EX stage. If Operand Forwarding is enabled then it accordingly passes the address of the register that needed to be fetched by EX stage through forwarding instead of the actual value. Also, this function finds the target address of a branch instruction and accordingly updating the PC value by comparing the register values if Early Branch Resolution is enabled.
+
+	3. struct EX_MEM Execute( struct ID_RF_EX ie , struct EX_MEM emb , struct MEM_WB mw , struct WB_IF wi )
+		This function handles the EX stage of the Execution. It takes the struct ID_RF_EX ie, struct EX_MEM emb , struct MEM_WB mw , struct  WB_IF wi as inputs and returns the EX_MEM as output. Here the struct EX_MEM is similar to the pipeline register between EX and MEM stage. The ID_RF_EX is the output of the previous function and it contains the decoded register and register values for execution, along with this it also takes outputs of EX, MEM, WB functions of the previous Clock cycle for the purpose of forwarding in case if Operand forwarding is enabled and the register value needed to forwarded from previous clock cycles.
+
+	4. struct MEM_WB MemoryWriteAndRead( struct EX_MEM em )
+		This function handles the MEM stage of the Execution. It takes the struct EX_MEM as input and outputs struct MEM_WB. This MEM_WB is similar to the pipeline register between MEM and WB stages of actual Pipeline Execution. It reads or writes information from the Memory and accordingly passes the values to the WB stage. Now this fetching of the values is either done directly with the memory if cache is not enabled (or) through the cache if cache is enabled, and also if there are any cache misses then it produces corresponding stalls.
+
+	5. struct WB_IF WriteBack( struct MEM_WB mw )
+		This function handles the WB stage of the Execution. It takes the struct MEM_WB as input and outputs struct WB_IF. As told before this struct WB_IF can be imagined to be a pipeline register between WB and IF stage which is in reality not true. This function updates the destination register with the value computed at EX stage.
+
+
+	In addition to these 5 functions there are two more functions in the class Processor.
+
+	6.void Process( bool pipe , bool oper , bool early , bool step , bool ca , bool extable )
+		This function can be assumed to be the control unit of the simulation. It makes calls to all the 5 functions mentioned above, maintains the clock, updates the Execution Table and also prints the contents of Registers, Memory, PC and Cache for each instruction executed (this is done by using the function Print). In each clock cycle the inputs for the 5 execution functions will be the outputs of the functions in the previous clock cycles. It also helps in squashing the instructions when there is a branch misprediction. 
+	
+	7.void Print( int regi , int pc , int memo )
+		This function prints the contents of the Registers, Memory, and PC values. It takes the register address that is changed (if any ) and highlights it( This means it prints the register in separate colour so that the user can take a quick look at it), similarly it does the same for the memory, and also it highlights the instruction that is just executed.
+
+ProcessorRegisters:
+
+		This is actually not a class but it contains the declaration/definition of all the struct variables/ Registers that are used in the class Processor.
+
+	NOTE : The simulation assumes that the value of the writeback is available in the first half of the clock cycle and the register fetch is done in the second half of the clock cycle. So, this means there will be only 2 stalls in the ID/RF stage for an instruction that is immediately dependent on the previous instruction.
+
+Memory:
+		This handles the Memory part of the Simulator. The size of the memory is 2^14 bytes, so eventually the address space is 14 bits. This class declares an array of unsigned char of size 16384 which acts as the Memory. It also has some access functions to access the memory.
+		Access functions:
+			1. int getWord( int address )  // returns a word i.e. 4 consecutive bytes starting from the address.
+			2. void writeWord( int word , int address )  // writes a word/int value into 4 consecutive bytes starting from the address.
+			3. unsigned char getByte( int address ) // returns the byte stored in the address
+			4. void writeByte( unsigned char c , int address )  // writes the given byte into the given address.
+
+	In addition to these functions, it has 3 more functions.
+		5. void WriteToFile()  //This functions writes the entire memory into two files, UserMemory.txt and InstructionMemory.txt after the completion of the execution of the Program.
+
+		6. void WriteInstruction()  // This functions converts the binary Instructions back to the Normal Assembly code using the function GetInstruction(int). This helps in displaying the Entire instructions in a step wise execution and also at the end of the program.
+
+		7. string GetInstructions( int inst )  // given a binary instruction it decodes the instruction and returns the corresponding assembly code instruction.
+
+	NOTE : We follow Big-Endian principle to store data. And the Memory is assumed to be divided into 3 parts: - The addresses 0 to 4095 is used to store the User's Memory i.e., all the variables and arrays. The addresses 4096 to 8191 is allotted to the stack and the addresses 8192 to 16383 is used to store the binary instructions. So eventually the stack pointer $sp initially points to 4096 and the return address is 8172. Actually, the instructions start from 8200. the address 8192 contains the address of the main procedure which helps the processor to find the starting point of the execution and address 8196 is left blank. The Program stops execution as soon as it sees an empty instruction, so even if the program doesn't contain a jr instruction the program terminates correctly.
+
+BranchPredictor:
+
+		This class makes the branch predictions for the branch instructions. It contains only one function: - int getPC( int ad );
+
+		Working of the branch Predictor:
+			This is a simple static branch predictor. This class maintains an array of size 16 pairs. This pair consists of an address, which is the address of branch instructions in the array and a bool value associated with it. Now if the instruction is not a branch instruction, then the function getPC returns PC + 4. If it is a unconditional branch instruction that contains the target address inside the instruction itself then it returns the target address (Note : Only jal and j contain the target address inside the instruction, jr doesn't contain the target address within the instruction, it has to be fetched from the register it is pointing to. So, for jal and j the predictor returns the target address and for jr it returns PC+4). 
+
+	Now for a conditional branch instruction, the function first checks for the address in the array, if it is found then it checks the corresponding bool value. If the bool value is true then the function returns the target address, if it is false then it returns PC + 4. Now if the address is not found then the function compares the target address with the PC value. if target < PC this means the instruction is pointing upwards, which means it is executing a loop, so branch is assumed to be taken. So this address is added into the array and the corresponding bool value is set to true. (This works only if the condition for checking the loop invariance is at the end of the loop. this can be made sure by the compiler that it always moves the loop checking condition to the end). If target > PC then it means that it is an 'if' statement the outcome of an 'if' statement is unpredictable and most of the time an if condition is evaluated to false therefore for these types of instructions the bool value is set to false i.e. branch not taken. Now regardless of the actual outcome of the branch instruction the array is not changed, so once it enters the array it is not changed which makes the predictor static.
+
+
+Cache:
+		This class maintains the Cache of the simulator. 
+		
+		It contains 8 main functions and rest are helper functions. It also contains a buffer which is a queue containing the blocks that need to be written to the memory.
+
+		Constructor of the class:
+			This one will create/initialize the cache according to the size of L1cache, size of L2cache, Associativity, BlockSize. The L1Cache/L2cache consists of an array of sets and each set consists of an array of blocks, and each block contains a tag, an array of bytes, dirty bit, and along with it few variables like lru, lfu , fifo for the replacement of the block.
+
+		StallNumber Load( int address , int NoOfbytes )
+			This one will return value of the given 'NoOfbytes' starting with the given address along with the no of stalls. First the function searches for the given address in the L1cache, if found it returns the value, if not found it searches in the L2cache, then in the buffer and finally in the Memory. And also, accordingly it changes the value of L1hits, L1misses, L2hits ...etc.
+
+		StallNumber LoadL2( int address )
+			This function searches for a given address in L2cache, removes and returns the block containing the address. It is called by Load.
+
+		Block InsertBlockInL1( Block block , int address )
+			It inserts the given block in L1Cache and returns the block that is removed while inserting the block.
+
+		Block InsertBlockInL2( Block block , int address )
+			It inserts the given block in L2Cache and returns the block that is removed while inserting the block.
+
+		StallNumber Store( int address , int number , int NoOfBytes )
+			It first searches for the given block in L1cache, then in L2Cache, in buffer. If it is found in any of them then it updates that particular block with the given value. If not found in any of them then it stores the value in memory.
+
+		int ReplaceL1( int address )
+			This function returns the number of the block that needed to be replaced in L1Cache while inserting a block into it according to the replacement policy chose.
+
+		int ReplaceL2( int address )
+			This function returns the number of the block that needed to be replaced in L2Cache while inserting a block into it according to the replacement policy chose.
+
+		void flushCache()
+			After completion of the entire program, flushCache() is called to remove all the blocks from both L1Cache, L2Cache and push it to the buffer so that the Memory is updated.
+
+		void writebackbuffer()
+			After flushing the cache writebackbuffer() will write all the Blocks back to the memory i.e. it empties the buffer.	
+	
+	NOTE: This cache is strictly exclusive. This is done with ease because we assume same associativity and blocksize for both the caches, therefore the two caches will only differ in the number of sets they have. We follow No-Write-Allocate and along with it Write back policy in this cache.
+
+
+Apart from the terminal output it also also has a user interface made using html, css and js. For using this Interface thee user needs to create a local server because it needs to read the files saved by the program from the local disk which is by default blocked by the browsers for safety reasons.
+The interface has options for seeing the code, user memory, instruction memory, output with pipeline, without pipeline, pipeline with and without operand forwarding.
