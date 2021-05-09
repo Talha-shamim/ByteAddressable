@@ -1,0 +1,66 @@
+.data
+	order:
+		.word 5
+	a:
+		.word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+	b:
+		.word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+.text
+.globl main
+main:
+	la $t3, a
+	la $t4, b
+	lw $a0, order
+	mul $k0, $a0, $a0
+	li $k1, 4
+	mul $k0, $k0, $k1
+	add $t5, $t4, $k0
+
+	loop1:
+		mul $s2, $a0, $t0
+		mul $s2, $s2, $k1
+		add $s2, $s2, $t5
+
+		mul $s0, $a0, $t0
+		mul $s0, $s0, $k1
+		add $s0, $s0, $t3
+
+		loop2:
+			mul $t6, $t1, $k1
+			add $t6, $t6, $s2
+			lw $s5, 0($t6)
+
+			li $s1, 0
+			add $s1, $s1, $t1
+			mul $s1, $s1, $k1
+			add $s1, $s1, $t4
+		
+			loop3:
+				mul $t6, $t2, $k1
+				add $t6, $t6, $s0
+				lw $s3, 0($t6)
+
+				mul $t6, $a0, $t2
+				mul $t6, $t6, $k1
+				add $t6, $t6, $s1
+				lw $s4, 0($t6)
+				
+				mul $t6, $s3, $s4
+				add $s5, $s5, $t6
+			
+				addi $t2, $t2, 1
+				bne $t2, $a0, loop3
+			
+			li $t2, 0
+			mul $t6, $t1, $k1
+			add $t6, $t6, $s2
+			sw $s5, 0($t6)
+			addi $t1, $t1, 1
+			bne $t1, $a0, loop2
+	
+	li $t1, 0
+	addi $t0, $t0, 1
+	bne $t0, $a0, loop1
+
+	exit:
+		jr $ra	

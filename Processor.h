@@ -1433,12 +1433,6 @@ class Processor
 				{
 					if( ie.value1FetchedOrNot == false )
 					{
-						if( wi.completedOrNot and wi.reg == ie.value1 )
-						{
-							ie.value1 = wi.value;
-							ie.value1FetchedOrNot = true;
-						}
-
 						if( emb.performOrNot == false )
 						{
 							if( ie.value1 == emb.address )
@@ -1453,24 +1447,27 @@ class Processor
 							if( ie.value1 == mw.reg )
 							{
 								ie.value1 = mw.value;
-							}
-							else
-							{
-								em.stallOrNot = true;
-								em.OperateOrNot = false;
-								return em;
+								ie.value1FetchedOrNot = true;
 							}
 						}
+						
+						if( wi.completedOrNot and wi.reg == ie.value1 and ie.value1FetchedOrNot == false )
+						{
+							ie.value1 = wi.value;
+							ie.value1FetchedOrNot = true;
+						}
+
+						if( ie.value1FetchedOrNot == false )
+						{
+							em.stallOrNot = true;
+							em.OperateOrNot = false;
+							return em;
+						}
+
 					}
 
 					if( ie.value2FetchedOrNot == false )
 					{
-						if( wi.completedOrNot and wi.reg == ie.value2 )
-						{
-							ie.value2 = wi.value;
-							ie.value2FetchedOrNot = true;
-						}
-
 						if( emb.performOrNot == false )
 						{
 							if( ie.value2 == emb.address )
@@ -1485,24 +1482,25 @@ class Processor
 							if( ie.value2 == mw.reg )
 							{
 								ie.value2 = mw.value;
+								ie.value2FetchedOrNot = true;
 							}
-							else
-							{
-								em.stallOrNot = true;
-								em.OperateOrNot = false;
-								return em;
-							}
+						}
+						if( wi.completedOrNot and wi.reg == ie.value2 and ie.value2FetchedOrNot == false )
+						{
+							ie.value2 = wi.value;
+							ie.value2FetchedOrNot = true;
+						}
+
+						if( ie.value2FetchedOrNot == false )
+						{
+							em.stallOrNot = true;
+							em.OperateOrNot = false;
+							return em;
 						}
 					}
 
 					if( ie.destinationFetchedOrNot == false )
 					{
-						if( wi.completedOrNot and wi.reg == ie.destination )
-						{
-							ie.destination = wi.value;
-							ie.destinationFetchedOrNot = true;
-						}
-
 						if( emb.performOrNot == false )
 						{
 							if( ie.destination == emb.address )
@@ -1517,13 +1515,20 @@ class Processor
 							if( ie.destination == mw.reg )
 							{
 								ie.destination = mw.value;
+								ie.destinationFetchedOrNot = true;
 							}
-							else
-							{
-								em.stallOrNot = true;
-								em.OperateOrNot = false;
-								return em;
-							}
+						}
+						if( wi.completedOrNot and wi.reg == ie.destination and ie.destinationFetchedOrNot == false )
+						{
+							ie.destination = wi.value;
+							ie.destinationFetchedOrNot = true;
+						}
+						
+						if( ie.destinationFetchedOrNot == false )
+						{
+							em.stallOrNot = true;
+							em.OperateOrNot = false;
+							return em;
 						}
 					}
 				}
@@ -2055,7 +2060,7 @@ class Processor
 			}
 			int blocks = 0;
 			
-			for( ; r < 32 || p < size || mem.getWord( m ) != 0 || !finish ; r++,p++,m+=4,count++ )
+			for( ; r < 32 || p <= size || mem.getWord( m ) != 0 || !finish ; r++,p++,m+=4,count++ )
 			{
 				if( r < 32 )
 				{
